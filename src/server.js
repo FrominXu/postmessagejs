@@ -1,7 +1,7 @@
 import MessageChannel from './message-channel';
 import MessageProxy from './message-proxy';
 
-const CLIENT_KEY = 'postmessagejs_client';
+const CLIENT_KEY = 'postmessage-promise_client';
 const IDENTITY_KEY = 'identity_key';
 function connectClient(eventFilter) {
   return new Promise(resolve => {

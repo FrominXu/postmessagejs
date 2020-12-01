@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
-const CLIENT_KEY = 'postmessagejs_client';
-const SERVER_KEY = 'postmessagejs_server';
+const CLIENT_KEY = 'postmessage-promise_client';
+const SERVER_KEY = 'postmessage-promise_server';
 const IDENTITY_KEY = 'identity_key';
 const identityMap = {
   server: { key: SERVER_KEY, accept: CLIENT_KEY },

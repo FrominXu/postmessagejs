@@ -1,6 +1,6 @@
-# postmessagejs
+# postmessage-promise
 
-postmessagejs 是一个类 client-server 模式、类 WebSocket 模式、全 Promise 语法支持的 postMessage 库。
+postmessage-promise 是一个类 client-server 模式、类 WebSocket 模式、全 Promise 语法支持的 postMessage 库。
 
 # 为何需要这个
 * 有时候，server 页面的逻辑单元并不是在 Document 加载完成后就能就绪的，所以当逻辑单元就绪时，我们需要一个方法去启动一个监听
@@ -15,11 +15,11 @@ postmessagejs 是一个类 client-server 模式、类 WebSocket 模式、全 Pro
 
 ## 如何使用
 ```shell
-$ npm i postmessagejs --save
+$ npm i postmessage-promise --save
 ```
 ### client
 ```js
-import { callServer, utils } from "postmessagejs";
+import { callServer, utils } from "postmessage-promise";
 const { getOpenedServer, getIframeServer } = utils;
 // window.open
 const serverObject = getOpenedServer("/newPage");
@@ -53,7 +53,7 @@ callServer(serverObject, options).then(e => {
 
 ### server
 ```js
-import { startListening } from "postmessagejs";
+import { startListening } from "postmessage-promise";
 const options = {};
 startListening(options).then(e => {
   console.log("connected with client");

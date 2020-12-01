@@ -1,6 +1,6 @@
-# postmessagejs
+# postmessage-promise
 
-postmessagejs is a client-server like, WebSocket like, full Promise syntax supported postMessage library.
+postmessage-promise is a client-server like, WebSocket like, full Promise syntax supported postMessage library.
 
 ## why need this
 * Sometimes, the server page's logic unit is not ready when Document is loaded, so we need a function to start a listening when logic unit is ready.
@@ -15,11 +15,11 @@ postmessagejs is a client-server like, WebSocket like, full Promise syntax suppo
 
 ## How to use it
 ```shell
-$ npm i postmessagejs --save
+$ npm i postmessage-promise --save
 ```
 ### client
 ```js
-import { callServer, utils } from "postmessagejs";
+import { callServer, utils } from "postmessage-promise";
 const { getOpenedServer, getIframeServer } = utils;
 // window.open
 const serverObject = getOpenedServer("/newPage");
@@ -53,7 +53,7 @@ callServer(serverObject, options).then(e => {
 
 ### server
 ```js
-import { startListening } from "postmessagejs";
+import { startListening } from "postmessage-promise";
 const options = {};
 startListening(options).then(e => {
   console.log("connected with client");
