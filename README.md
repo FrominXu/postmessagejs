@@ -14,6 +14,9 @@ postmessagejs is a client-server like, WebSocket like, full Promise syntax suppo
 * es6 async await syntax supported.
 
 ## How to use it
+```shell
+$ npm i postmessagejs --save
+```
 ### client
 ```js
 import { callServer, utils } from "postmessagejs";
