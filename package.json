@@ -1,6 +1,6 @@
 {
   "name": "postmessage-promise",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "author": "FrominXu",
   "description": "postmessage-promise is a client-server like, WebSocket like, full Promise syntax supported postMessage library. 一个类 client-server 模式、类 WebSocket like 模式、全 Promise 语法支持的 postMessage 库",
   "license": "MIT",

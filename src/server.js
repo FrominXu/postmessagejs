@@ -31,15 +31,30 @@ function connectClient(eventFilter) {
 function createChannel(clientProps, eventFilter, timeout) {
   const { origin, client, channelId } = clientProps;
   const clientInfo = { origin, source: client, channelId };
-  const serverProxy = new MessageProxy('server', clientInfo, eventFilter);
-  const messageChannel = new MessageChannel('server', serverProxy, timeout);
+  let serverProxy = new MessageProxy('server', clientInfo, eventFilter);
+  let messageChannel = new MessageChannel('server', serverProxy, timeout);
   return {
     run: resolve => {
       serverProxy.request('hand-shake', 'hand-shake-event', {});
       resolve({
-        postMessage: messageChannel.postMessage,
-        listenMessage: messageChannel.listenMessage,
-        destroy: messageChannel.destroy,
+        postMessage: (...args) => {
+          if (messageChannel) {
+            return messageChannel.postMessage(...args);
+          }
+          return Promise.reject();
+        },
+        listenMessage: (...args) => {
+          if (messageChannel) {
+            messageChannel.listenMessage(...args);
+          }
+        },
+        destroy: () => {
+          if (messageChannel) {
+            messageChannel.destroy();
+            messageChannel = null;
+            serverProxy = null;
+          }
+        }
       });
     }
   };

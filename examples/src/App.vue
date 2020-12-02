@@ -4,10 +4,8 @@
   </div>
 </template>
 <script>
-
 export default {
   name: "test-root",
-  components: {
-  }
+  components: {}
 };
 </script>

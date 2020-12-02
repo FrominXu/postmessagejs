@@ -43,9 +43,12 @@ function connectServer(serverInfo, clientProxy, timeout) {
  */
 function createChannel(serverInfo, clientProxy, timeout) {
   const { source: server } = serverInfo;
-  const messageChannel = new MessageChannel('client', clientProxy, timeout);
+  let messageChannel = new MessageChannel('client', clientProxy, timeout);
   const destroy = () => {
-    messageChannel.destroy();
+    if (messageChannel) {
+      messageChannel.destroy();
+      messageChannel = null;
+    }
     if (serverInfo.destroy) { serverInfo.destroy(); }
   };
   // daemon
@@ -54,15 +57,26 @@ function createChannel(serverInfo, clientProxy, timeout) {
     if (!server || server.closed) {
       console.info('server closed.');
       clearInterval(watcher);
-      messageChannel.destroy();
+      if (messageChannel) {
+        messageChannel.destroy();
+      }
     }
   }
   watcher = setInterval(watch, 1000);
   return {
     run: resolve => {
       resolve({
-        postMessage: messageChannel.postMessage,
-        listenMessage: messageChannel.listenMessage,
+        postMessage: (...args) => {
+          if (messageChannel) {
+            return messageChannel.postMessage(...args);
+          }
+          return Promise.reject();
+        },
+        listenMessage: (...args) => {
+          if (messageChannel) {
+            messageChannel.listenMessage(...args);
+          }
+        },
         destroy,
       });
     }
@@ -87,9 +101,18 @@ function callServer(serverObject, options = {}) {
       reject(new Error('server closed'));
       return;
     }
-    const clientProxy = new MessageProxy('client', serverInfo, eventFilter);
+    let clientProxy = new MessageProxy('client', serverInfo, eventFilter);
+    const sInfo = {
+      ...serverInfo,
+      destroy: () => {
+        if (destroy) {
+          destroy();
+          clientProxy = null;
+        }
+      }
+    };
     connectServer(serverInfo, clientProxy, timeout).then(() => {
-      createChannel(serverInfo, clientProxy, timeout).run(resolve);
+      createChannel(sInfo, clientProxy, timeout).run(resolve);
     }).catch(e => {
       reject(e);
     });

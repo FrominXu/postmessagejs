@@ -8,14 +8,14 @@ import './index.less';
 
 Vue.use(VueRouter);
 const routes = [
-  { path: '/', redirect: '/main'},
+  { path: '/', redirect: '/main' },
   { path: '/main', component: mainPage },
   { path: '/newPage', component: newPage },
   { path: '/iframe', component: iframe },
 ];
 const router = new VueRouter({
   routes,
-  mode:"history"
+  mode: "history"
 });
 
 Vue.config.productionTip = false;

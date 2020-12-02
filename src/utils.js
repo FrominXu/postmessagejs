@@ -21,7 +21,7 @@ export function getIframeServer(
   classListArray = []
 ) {
   const root = typeof container !== 'undefined' ? container : document.body;
-  const origin = resolveOrigin(targetUrl, 'origin');
+  const origin = resolveOrigin(targetUrl);
   const frame = document.createElement('iframe');
   frame.name = name || '';
   // eslint-disable-next-line prefer-spread
@@ -38,12 +38,12 @@ export function getIframeServer(
 
 export function getOpenedServer(targetUrl, ...opts) {
   // window.opener.origin inaccessible when cross-origin
-  const origin = resolveOrigin(targetUrl, 'origin');
+  const origin = resolveOrigin(targetUrl);
   const openedWindow = window.open(targetUrl, ...opts);
   return {
     server: openedWindow,
     origin,
-    destroy: () => { if (origin && origin.close) { origin.close(); } },
+    destroy: () => { if (openedWindow && openedWindow.close) { openedWindow.close(); } },
   };
 }
 

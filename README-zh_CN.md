@@ -9,23 +9,51 @@ postmessage-promise 是一个类 client-server 模式、类 WebSocket 模式、�
 ## 特性
 * 支持 iframe 和 window.open 打开的窗口
 * 类 client-server 模式、类 WebSocket 模式
-* client 端使用 `callServer` 方法创建一个 server (创建一个iframe或打开一个新窗口)，然后尝试连接 server 直到超时
-* server 端使用 `startListening` 方法开启一个监听，一个监听只能与一个 client 建立连接
+* client 端使用 `callServer` 方法创建一个 server (创建一个iframe或打开一个新窗口)，然后尝试连接 server 直到超时。如果需要，你可以用同一个 `serverObject` 来创建新的 client-caller.
+* server 端使用 `startListening` 方法开启一个监听，一个监听只能与一个 client 建立连接。如果需要，你也可以开启多个监听。
 * ES6 async await 语法支持
 
 ## 如何使用
 ```shell
 $ npm i postmessage-promise --save
 ```
-### client
+
+### client (iframe case)
 ```js
 import { callServer, utils } from "postmessage-promise";
 const { getOpenedServer, getIframeServer } = utils;
-// window.open
-const serverObject = getOpenedServer("/targetUrl");
-// or iframe
 const iframeRoot = document.getElementById("iframe-root");
 const serverObject = getIframeServer(iframeRoot, "/targetUrl", "iname", ['iframe-style']);
+const options = {}; 
+callServer(serverObject, options).then(e => {
+  console.log("connected with server");
+  const { postMessage, listenMessage, destroy } = e;
+  // post message to server and wait for response
+  const method = "testPost";
+  const payload = "this is client post payload";
+  postMessage(method, payload).then(e => {
+    console.log("response from server: ", e);
+  });
+  // listener for server message
+  listenMessage((method, payload, response) => {
+    console.log("client received: ", method, payload);
+    const time = new Date().getTime();
+    setTimeout(() => {
+      // response to server
+      response({
+        time,
+        msg: "this is a client response"
+      });
+    }, 200);
+  });
+});
+```
+
+### client (window.open case)
+```js
+import { callServer, utils } from "postmessage-promise";
+const { getOpenedServer, getIframeServer } = utils;
+const serverObject = getOpenedServer("/targetUrl");
 const options = {}; 
 callServer(serverObject, options).then(e => {
   console.log("connected with server");
@@ -86,6 +114,12 @@ startListening(options).then(e => {
     server: iframeWindow,
     origin,
     destroy: () => { if (frame) { frame.parentNode.removeChild(frame); } }
+  };
+    or:
+  {
+    server: openedWindow,
+    origin,
+    destroy: () => { if (openedWindow && openedWindow.close) { openedWindow.close(); } },
   };
 ```
 

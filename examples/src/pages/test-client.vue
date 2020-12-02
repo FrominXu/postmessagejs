@@ -7,6 +7,9 @@
     <div v-if="connected">
       <h4>connected with server success!</h4>
       <button @click="postMsg">click to post message to server</button>
+      <div>
+        <button @click="close">click to destroy server</button>
+      </div>
     </div>
     <ul v-for="item in msgList" :key="item.time">
       <li>{{item.time}}: {{item.msg}}</li>
@@ -34,6 +37,7 @@ export default {
         this.connected = true;
         const { postMessage, listenMessage, destroy } = e;
         this.postMessage = postMessage;
+        this.destroy = destroy;
         listenMessage((method, payload, response) => {
           console.log("client listening: ", method, payload);
           const time = new Date().getTime();
@@ -52,6 +56,13 @@ export default {
           console.log("response from server: ", e);
           this.msgList = [...this.msgList, e];
         });
+      }
+    },
+    close: function() {
+      if (this.destroy) {
+        this.destroy();
+        this.postMessage = null;
+        this.destroy = null;
       }
     }
   }

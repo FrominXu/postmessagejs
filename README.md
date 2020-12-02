@@ -2,6 +2,8 @@
 
 postmessage-promise is a client-server like, WebSocket like, full Promise syntax supported postMessage library.
 
+[中文文档](./README-zh_CN.md)
+
 ## Why need this
 * Sometimes, the server page's logic unit is not ready when Document is loaded, so we need a function to start a listening when logic unit is ready.
 * Sometimes, we need waiting for the postMessage's response before post next message.
@@ -9,23 +11,51 @@ postmessage-promise is a client-server like, WebSocket like, full Promise syntax
 ## Features
 * support window: iFrame and window.open() window.
 * client-server like, and WebSocket like.
-* client use `callServer` to create a server (create a iframe or open a new window), then trying to connect with server unless timeout.
-* server use `startListening` to start a server listening, each server listening can only connect with one client.
+* client use `callServer` to create a server (create a iframe or open a new window), then trying to connect with server unless timeout. You can use the same `serverObject` to create more client-caller if necessary.
+* server use `startListening` to start a server listening, each server listening can only connect with one client. You can start more than one listening if necessary.
 * ES6 async await syntax supported.
 
 ## How to use it
 ```shell
 $ npm i postmessage-promise --save
 ```
-### client
+
+### client (iframe case)
 ```js
 import { callServer, utils } from "postmessage-promise";
 const { getOpenedServer, getIframeServer } = utils;
-// window.open
-const serverObject = getOpenedServer("/targetUrl");
-// or iframe
 const iframeRoot = document.getElementById("iframe-root");
 const serverObject = getIframeServer(iframeRoot, "/targetUrl", "iname", ['iframe-style']);
+const options = {}; 
+callServer(serverObject, options).then(e => {
+  console.log("connected with server");
+  const { postMessage, listenMessage, destroy } = e;
+  // post message to server and wait for response
+  const method = "testPost";
+  const payload = "this is client post payload";
+  postMessage(method, payload).then(e => {
+    console.log("response from server: ", e);
+  });
+  // listener for server message
+  listenMessage((method, payload, response) => {
+    console.log("client received: ", method, payload);
+    const time = new Date().getTime();
+    setTimeout(() => {
+      // response to server
+      response({
+        time,
+        msg: "this is a client response"
+      });
+    }, 200);
+  });
+});
+```
+
+### client (window.open case)
+```js
+import { callServer, utils } from "postmessage-promise";
+const { getOpenedServer, getIframeServer } = utils;
+const serverObject = getOpenedServer("/targetUrl");
 const options = {}; 
 callServer(serverObject, options).then(e => {
   console.log("connected with server");
@@ -86,6 +116,12 @@ you can provide other serverObject like:
     server: iframeWindow,
     origin,
     destroy: () => { if (frame) { frame.parentNode.removeChild(frame); } }
+  };
+  or:
+  {
+    server: openedWindow,
+    origin,
+    destroy: () => { if (openedWindow && openedWindow.close) { openedWindow.close(); } },
   };
 ```
 

@@ -5,6 +5,7 @@ const responseMap = {
   server: { receive: CLIENT_RESPONSE, post: SERVER_RESPONSE },
   client: { receive: SERVER_RESPONSE, post: CLIENT_RESPONSE },
 };
+const KEY_METHODS = ['hand-shake', 'wave-hand', CLIENT_RESPONSE, SERVER_RESPONSE];
 /**
  * message channel
  * type: 'server' | 'client'
@@ -55,6 +56,9 @@ class MessageChannel {
   }
 
   postMessage = (method, payload) => {
+    if (KEY_METHODS.indexOf(method) >= 0) {
+      return Promise.reject(new Error(`${method} is a protected key-method.`));
+    }
     return new Promise((resolve, reject) => {
       if (this.destroyed) {
         reject(new Error('message-channel had been destroyed!'));
@@ -78,11 +82,16 @@ class MessageChannel {
 
   destroy = () => {
     this.destroyed = true;
-    this.unListen();
+    if (this.unListen) {
+      this.unListen();
+      this.unListen = null;
+    }
     this.listener = null;
     this.messageResponse = null;
-    this.messageProxy.destroy();
-    this.messageProxy = null;
+    if (this.messageProxy) {
+      this.messageProxy.destroy();
+      this.messageProxy = null;
+    }
   }
 }
 
