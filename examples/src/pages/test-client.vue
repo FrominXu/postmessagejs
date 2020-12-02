@@ -34,8 +34,8 @@ export default {
         this.connected = true;
         const { postMessage, listenMessage, destroy } = e;
         this.postMessage = postMessage;
-        listenMessage((method, payloady, response) => {
-          console.log("client listening: ", method, payloady);
+        listenMessage((method, payload, response) => {
+          console.log("client listening: ", method, payload);
           const time = new Date().getTime();
           setTimeout(() => {
             response({

@@ -2,7 +2,7 @@
 
 postmessage-promise is a client-server like, WebSocket like, full Promise syntax supported postMessage library.
 
-## why need this
+## Why need this
 * Sometimes, the server page's logic unit is not ready when Document is loaded, so we need a function to start a listening when logic unit is ready.
 * Sometimes, we need waiting for the postMessage's response before post next message.
 
@@ -11,7 +11,7 @@ postmessage-promise is a client-server like, WebSocket like, full Promise syntax
 * client-server like, and WebSocket like.
 * client use `callServer` to create a server (create a iframe or open a new window), then trying to connect with server unless timeout.
 * server use `startListening` to start a server listening, each server listening can only connect with one client.
-* es6 async await syntax supported.
+* ES6 async await syntax supported.
 
 ## How to use it
 ```shell
@@ -22,10 +22,10 @@ $ npm i postmessage-promise --save
 import { callServer, utils } from "postmessage-promise";
 const { getOpenedServer, getIframeServer } = utils;
 // window.open
-const serverObject = getOpenedServer("/newPage");
+const serverObject = getOpenedServer("/targetUrl");
 // or iframe
 const iframeRoot = document.getElementById("iframe-root");
-const serverObject = getIframeServer(iframeRoot, "/newPage", "iname", ['iframe-style']);
+const serverObject = getIframeServer(iframeRoot, "/targetUrl", "iname", ['iframe-style']);
 const options = {}; 
 callServer(serverObject, options).then(e => {
   console.log("connected with server");
@@ -37,8 +37,8 @@ callServer(serverObject, options).then(e => {
     console.log("response from server: ", e);
   });
   // listener for server message
-  listenMessage((method, payloady, response) => {
-    console.log("client listening: ", method, payloady);
+  listenMessage((method, payload, response) => {
+    console.log("client received: ", method, payload);
     const time = new Date().getTime();
     setTimeout(() => {
       // response to server
@@ -59,8 +59,8 @@ startListening(options).then(e => {
   console.log("connected with client");
   const { postMessage, listenMessage, destroy } = e;
   // listener for client message
-  listenMessage((method, payloady, response) => {
-    console.log("server listening: ", method, payloady);
+  listenMessage((method, payload, response) => {
+    console.log("server received: ", method, payload);
     const time = new Date().getTime();
     setTimeout(() => {
       // response to client
@@ -71,15 +71,25 @@ startListening(options).then(e => {
     }, 200);
   });
   // post message to client and wait for response
-  const method = "testPost";
-  const payload = "this is client post payload";
-  postMessage(method, payload).then(e => { {
+  const method = "toClient";
+  const payload = { msg: 'this is server post payload' };
+  postMessage(method, payload).then(e => {
     console.log("response from client: ", e);
   });
 });
 ```
 
+## serverObject
+you can provide other serverObject like:
+```js
+  {
+    server: iframeWindow,
+    origin,
+    destroy: () => { if (frame) { frame.parentNode.removeChild(frame); } }
+  };
+```
+
 ## options 
-* options : { eventFilter = (event)=>true, timeout = 20 * 1000 }
+* options : { eventFilter = (event) => true, timeout = 20 * 1000 }
 * eventFilter: is filter for post messages event.
 * timeout: is set for client to connect with server, or for client and server's response of postMessage.then.

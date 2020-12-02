@@ -11,7 +11,7 @@ postmessage-promise 是一个类 client-server 模式、类 WebSocket 模式、�
 * 类 client-server 模式、类 WebSocket 模式
 * client 端使用 `callServer` 方法创建一个 server (创建一个iframe或打开一个新窗口)，然后尝试连接 server 直到超时
 * server 端使用 `startListening` 方法开启一个监听，一个监听只能与一个 client 建立连接
-* es6 async await 语法支持
+* ES6 async await 语法支持
 
 ## 如何使用
 ```shell
@@ -22,10 +22,10 @@ $ npm i postmessage-promise --save
 import { callServer, utils } from "postmessage-promise";
 const { getOpenedServer, getIframeServer } = utils;
 // window.open
-const serverObject = getOpenedServer("/newPage");
+const serverObject = getOpenedServer("/targetUrl");
 // or iframe
 const iframeRoot = document.getElementById("iframe-root");
-const serverObject = getIframeServer(iframeRoot, "/newPage", "iname", ['iframe-style']);
+const serverObject = getIframeServer(iframeRoot, "/targetUrl", "iname", ['iframe-style']);
 const options = {}; 
 callServer(serverObject, options).then(e => {
   console.log("connected with server");
@@ -37,8 +37,8 @@ callServer(serverObject, options).then(e => {
     console.log("response from server: ", e);
   });
   // listener for server message
-  listenMessage((method, payloady, response) => {
-    console.log("client listening: ", method, payloady);
+  listenMessage((method, payload, response) => {
+    console.log("client received: ", method, payload);
     const time = new Date().getTime();
     setTimeout(() => {
       // response to server
@@ -59,8 +59,8 @@ startListening(options).then(e => {
   console.log("connected with client");
   const { postMessage, listenMessage, destroy } = e;
   // listener for client message
-  listenMessage((method, payloady, response) => {
-    console.log("server listening: ", method, payloady);
+  listenMessage((method, payload, response) => {
+    console.log("server received: ", method, payload);
     const time = new Date().getTime();
     setTimeout(() => {
       // response to client
@@ -71,16 +71,26 @@ startListening(options).then(e => {
     }, 200);
   });
   // post message to client and wait for response
-  const method = "testPost";
-  const payload = "this is client post payload";
-  postMessage(method, payload).then(e => { {
+  const method = "toClient";
+  const payload = { msg: 'this is server post payload' };
+  postMessage(method, payload).then(e => {
     console.log("response from client: ", e);
   });
 });
 ```
 
+## serverObject
+你可以提供如下格式的 serverObject：
+```js
+  {
+    server: iframeWindow,
+    origin,
+    destroy: () => { if (frame) { frame.parentNode.removeChild(frame); } }
+  };
+```
+
 # options
-* options : { eventFilter = (event)=>true, timeout = 20 * 1000 }
+* options : { eventFilter = (event) => true, timeout = 20 * 1000 }
 * eventFilter: 对 post messages event 过滤
 * timeout: 设置 client 连接 server 的超时时间, 或 client 和 server 的postMessage.then 响应超时时间
 
