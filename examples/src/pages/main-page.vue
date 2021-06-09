@@ -3,6 +3,9 @@
     <p>
       <a href="/iframe" target="_blank">open a iframe case page</a>
     </p>
+    <p>
+      <a href="/main-server" target="_blank">open a main-clients case page</a>
+    </p>
     <t-client />
   </div>
 </template>

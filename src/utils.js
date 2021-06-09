@@ -32,7 +32,8 @@ export function getIframeServer(
   return {
     server: iframeWindow,
     origin,
-    destroy: () => { if (frame) { frame.parentNode.removeChild(frame); } }
+    frame,
+    // destroy: () => { if (frame) { frame.parentNode.removeChild(frame); } }
   };
 }
 
@@ -43,7 +44,7 @@ export function getOpenedServer(targetUrl, ...opts) {
   return {
     server: openedWindow,
     origin,
-    destroy: () => { if (openedWindow && openedWindow.close) { openedWindow.close(); } },
+    // destroy: () => { if (openedWindow && openedWindow.close) { openedWindow.close(); } },
   };
 }
 

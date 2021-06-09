@@ -9,9 +9,15 @@ postmessage-promise 是一个类 client-server 模式、类 WebSocket 模式、�
 ## 特性
 * 支持 iframe 和 window.open 打开的窗口
 * 类 client-server 模式、类 WebSocket 模式
-* client 端使用 `callServer` 方法创建一个 server (创建一个iframe或打开一个新窗口)，然后尝试连接 server 直到超时。如果需要，你可以用同一个 `serverObject` 来创建新的 client-caller.
+* client 端使用 `callServer` 方法尝试连接 server 直到超时。如果需要，你可以用同一个 `serverObject` 来创建新的 client-caller。 server 可以是 一个 frame.contentWindow、一个新打开的 window、window.parent 或者 window.opener)
 * server 端使用 `startListening` 方法开启一个监听，一个监听只能与一个 client 建立连接。如果需要，你也可以开启多个监听。
 * ES6 async await 语法支持
+
+### connent
+![](https://raw.githubusercontent.com/FrominXu/postmessagejs/master/images/postmessagejs-connect.png)
+
+### message-channel
+![](https://raw.githubusercontent.com/FrominXu/postmessagejs/master/images/postmessagejs-message-channel.png)
 
 ## 如何使用
 ```shell
@@ -107,24 +113,44 @@ startListening(options).then(e => {
 });
 ```
 
+### multi server and client
+```js
+// server:
+const listener = (handler, name)=>{
+  startListening({
+    serverInfo: {
+      name: "thisIsServer"+name
+    }
+  }).then(e=>{
+    listener(handler, Math.random());
+    handler(e);
+  });
+}
+listener((e)=>{});
+//
+// client:
+callServer(serverObject, {
+  onDestroy: () => { }, clientInfo: { name: "thisIsClient"+ Math.random() }
+}).then(e => {})
+```
+
 ## serverObject
 你可以提供如下格式的 serverObject：
 ```js
   {
-    server: iframeWindow,
-    origin,
-    destroy: () => { if (frame) { frame.parentNode.removeChild(frame); } }
-  };
-    or:
-  {
-    server: openedWindow,
-    origin,
-    destroy: () => { if (openedWindow && openedWindow.close) { openedWindow.close(); } },
+    server: frame.contentWindow, // openedWindow / window.parent / window.opener
+    origin
   };
 ```
 
 # options
-* options : { eventFilter = (event) => true, timeout = 20 * 1000 }
+```js
+const options = { 
+  eventFilter: (event) => true, 
+  timeout: 20 * 1000,
+  onDestroy: (info) => { if (frame) { frame.parentNode.removeChild(frame); } }
+}
+```
 * eventFilter: 对 post messages event 过滤
 * timeout: 设置 client 连接 server 的超时时间, 或 client 和 server 的postMessage.then 响应超时时间
 

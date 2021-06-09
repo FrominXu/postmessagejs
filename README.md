@@ -11,9 +11,15 @@ postmessage-promise is a client-server like, WebSocket like, full Promise syntax
 ## Features
 * support window: iFrame and window.open() window.
 * client-server like, and WebSocket like.
-* client use `callServer` to create a server (create a iframe or open a new window), then trying to connect with server unless timeout. You can use the same `serverObject` to create more client-caller if necessary.
+* client use `callServer` to connect with server unless timeout. You can use the same `serverObject` to create more client-caller if necessary. (the server may be a frame.contentWindow、a new opened window、window.parent or window.opener)
 * server use `startListening` to start a server listening, each server listening can only connect with one client. You can start more than one listening if necessary.
 * ES6 async await syntax supported.
+
+### connent
+![](https://raw.githubusercontent.com/FrominXu/postmessagejs/master/images/postmessagejs-connect.png)
+
+### message-channel
+![](https://raw.githubusercontent.com/FrominXu/postmessagejs/master/images/postmessagejs-message-channel.png)
 
 ## How to use it
 ```shell
@@ -109,23 +115,43 @@ startListening(options).then(e => {
 });
 ```
 
+### multi server and client
+```js
+// server:
+const listener = (handler, name)=>{
+  startListening({
+    serverInfo: {
+      name: "thisIsServer"+name
+    }
+  }).then(e=>{
+    listener(handler, Math.random());
+    handler(e);
+  });
+}
+listener((e)=>{});
+//
+// client:
+callServer(serverObject, {
+  onDestroy: () => { }, clientInfo: { name: "thisIsClient"+ Math.random() }
+}).then(e => {})
+```
+
 ## serverObject
 you can provide other serverObject like:
 ```js
   {
-    server: iframeWindow,
-    origin,
-    destroy: () => { if (frame) { frame.parentNode.removeChild(frame); } }
-  };
-  or:
-  {
-    server: openedWindow,
-    origin,
-    destroy: () => { if (openedWindow && openedWindow.close) { openedWindow.close(); } },
+    server: frame.contentWindow, // openedWindow / window.parent / window.opener
+    origin
   };
 ```
 
 ## options 
-* options : { eventFilter = (event) => true, timeout = 20 * 1000 }
+```js
+const options = { 
+  eventFilter: (event) => true, 
+  timeout: 20 * 1000,
+  onDestroy: () => { if (frame) { frame.parentNode.removeChild(frame); } }
+}
+```
 * eventFilter: is filter for post messages event.
 * timeout: is set for client to connect with server, or for client and server's response of postMessage.then.

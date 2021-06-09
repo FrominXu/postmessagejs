@@ -3,7 +3,7 @@ import MessageProxy from './message-proxy';
 
 const CLIENT_KEY = 'postmessage-promise_client';
 const IDENTITY_KEY = 'identity_key';
-function connectClient(eventFilter) {
+function connectClient(eventFilter, serverInfo) {
   return new Promise(resolve => {
     function handShake(event) {
       if (!event.data
@@ -15,10 +15,13 @@ function connectClient(eventFilter) {
         return;
       }
       window.removeEventListener('message', handShake);
+      const { payload = {} } = event.data;
       resolve({
         client: event.source,
         origin: event.origin,
         channelId: event.data.channelId,
+        serverInfo,
+        clientInfo: payload.clientInfo
       });
     }
     window.addEventListener('message', handShake);
@@ -29,14 +32,35 @@ function connectClient(eventFilter) {
  * @param {*} clientInfo
  */
 function createChannel(clientProps, eventFilter, timeout) {
-  const { origin, client, channelId } = clientProps;
-  const clientInfo = { origin, source: client, channelId };
-  let serverProxy = new MessageProxy('server', clientInfo, eventFilter);
+  const {
+    origin, client, channelId, serverInfo = {}, clientInfo = {}
+  } = clientProps;
+  const sourceInfo = { origin, source: client, channelId };
+  let serverProxy = new MessageProxy('server', sourceInfo, eventFilter);
   let messageChannel = new MessageChannel('server', serverProxy, timeout);
+  const destroy = () => {
+    if (messageChannel) {
+      messageChannel.destroy();
+      messageChannel = null;
+    }
+    serverProxy = null;
+    if (clientProps.destroy) { clientProps.destroy(); }
+  };
+  // daemon
+  let watcher = null;
+  function watch() {
+    if (!client || client.closed) {
+      console.info('client closed.');
+      clearInterval(watcher);
+      destroy();
+    }
+  }
+  watcher = setInterval(watch, 2000);
   return {
     run: resolve => {
-      serverProxy.request('hand-shake', 'hand-shake-event', {});
+      serverProxy.request('hand-shake', 'hand-shake-event', { serverInfo });
       resolve({
+        clientInfo,
         postMessage: (...args) => {
           if (messageChannel) {
             return messageChannel.postMessage(...args);
@@ -48,26 +72,30 @@ function createChannel(clientProps, eventFilter, timeout) {
             messageChannel.listenMessage(...args);
           }
         },
-        destroy: () => {
-          if (messageChannel) {
-            messageChannel.destroy();
-            messageChannel = null;
-            serverProxy = null;
-          }
-        }
+        destroy
       });
     }
   };
 }
 
 /**
- * start a server listening, each server listening can only connect with on client.
+ * start a server listening, each server listening can only connect with one client.
  * @param {*} options: { eventFilter, timeout } filter post messages
  */
 function startListening(options = {}) {
-  const { eventFilter = () => true, timeout = 20 * 1000 } = options;
+  const {
+    eventFilter = () => true, timeout = 20 * 1000, serverInfo = {}, onDestroy
+  } = options;
   return new Promise(resolve => {
-    connectClient(eventFilter).then(clientProps => {
+    connectClient(eventFilter, serverInfo).then(cProps => {
+      const clientProps = {
+        ...cProps,
+        destroy: () => {
+          if (onDestroy) {
+            onDestroy(cProps.clientInfo);
+          }
+        }
+      };
       createChannel(clientProps, eventFilter, timeout).run(resolve);
     });
   });

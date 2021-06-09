@@ -1,17 +1,23 @@
 import MessageChannel from './message-channel';
 import MessageProxy from './message-proxy';
 
-function connectServer(serverInfo, clientProxy, timeout) {
+function connectServer(sourceInfo, clientProxy, timeout, clientInfo) {
   return new Promise((resolve, reject) => {
-    const { source: server } = serverInfo;
+    const { source: server, origin, channelId } = sourceInfo;
     let timer = null;
     const startTime = new Date();
     let unListen = null;
-    function handShake(method) {
+    function handShake(method, eventId, payload = {}) {
       if (method === 'hand-shake') {
         clearInterval(timer);
         if (unListen) { unListen(); }
-        resolve();
+        resolve({
+          server,
+          origin,
+          channelId,
+          serverInfo: payload.serverInfo,
+          clientInfo
+        });
       }
     }
     unListen = clientProxy.listen(handShake);
@@ -32,7 +38,7 @@ function connectServer(serverInfo, clientProxy, timeout) {
           throw new Error('connect timeout.');
         }
       }
-      clientProxy.request('hand-shake', 'hand-shake-event', {});
+      clientProxy.request('hand-shake', 'hand-shake-event', { clientInfo });
     };
     timer = setInterval(tryConnect, 100);
   });
@@ -41,15 +47,15 @@ function connectServer(serverInfo, clientProxy, timeout) {
  * create a message channel based on the channelId.
  * @param {*} clientInfo
  */
-function createChannel(serverInfo, clientProxy, timeout) {
-  const { source: server } = serverInfo;
+function createChannel(serverProps, clientProxy, timeout) {
+  const { server, serverInfo = {} } = serverProps;
   let messageChannel = new MessageChannel('client', clientProxy, timeout);
   const destroy = () => {
     if (messageChannel) {
       messageChannel.destroy();
       messageChannel = null;
     }
-    if (serverInfo.destroy) { serverInfo.destroy(); }
+    if (serverProps.destroy) { serverProps.destroy(); }
   };
   // daemon
   let watcher = null;
@@ -57,15 +63,14 @@ function createChannel(serverInfo, clientProxy, timeout) {
     if (!server || server.closed) {
       console.info('server closed.');
       clearInterval(watcher);
-      if (messageChannel) {
-        messageChannel.destroy();
-      }
+      destroy();
     }
   }
-  watcher = setInterval(watch, 1000);
+  watcher = setInterval(watch, 2000);
   return {
     run: resolve => {
       resolve({
+        serverInfo,
         postMessage: (...args) => {
           if (messageChannel) {
             return messageChannel.postMessage(...args);
@@ -90,29 +95,31 @@ function createChannel(serverInfo, clientProxy, timeout) {
  */
 function callServer(serverObject, options = {}) {
   if (!serverObject) throw new Error('serverObject is null');
-  const { server, origin, destroy } = serverObject;
-  const { eventFilter = () => true, timeout = 20 * 1000 } = options;
+  const { server, origin } = serverObject;
+  const {
+    eventFilter = () => true, timeout = 20 * 1000, clientInfo = {}, onDestroy
+  } = options;
   const channelId = Math.random().toString().substr(3, 10);
-  const serverInfo = {
-    source: server, origin, channelId, destroy
+  const sourceInfo = {
+    source: server, origin, channelId
   };
   return new Promise((resolve, reject) => {
     if (!server || server.closed) {
       reject(new Error('server closed'));
       return;
     }
-    let clientProxy = new MessageProxy('client', serverInfo, eventFilter);
-    const sInfo = {
-      ...serverInfo,
-      destroy: () => {
-        if (destroy) {
-          destroy();
+    let clientProxy = new MessageProxy('client', sourceInfo, eventFilter);
+    connectServer(sourceInfo, clientProxy, timeout, clientInfo).then(sProps => {
+      const serverProps = {
+        ...sProps,
+        destroy: () => {
           clientProxy = null;
+          if (onDestroy) {
+            onDestroy();
+          }
         }
-      }
-    };
-    connectServer(serverInfo, clientProxy, timeout).then(() => {
-      createChannel(sInfo, clientProxy, timeout).run(resolve);
+      };
+      createChannel(serverProps, clientProxy, timeout).run(resolve);
     }).catch(e => {
       reject(e);
     });
