@@ -14,10 +14,10 @@ postmessage-promise 是一个类 client-server 模式、类 WebSocket 模式、�
 * ES6 async await 语法支持
 
 ### connent
-![](https://raw.githubusercontent.com/FrominXu/postmessagejs/master/images/postmessagejs-connect.png)
+![](https://github.com/FrominXu/postmessagejs/blob/main/images/postmessagejs-connect.png?raw=true)
 
 ### message-channel
-![](https://raw.githubusercontent.com/FrominXu/postmessagejs/master/images/postmessagejs-message-channel.png)
+![](https://github.com/FrominXu/postmessagejs/blob/main/images/postmessagejs-message-channel.png?raw=true)
 
 ## 如何使用
 ```shell

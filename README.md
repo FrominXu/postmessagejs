@@ -16,10 +16,10 @@ postmessage-promise is a client-server like, WebSocket like, full Promise syntax
 * ES6 async await syntax supported.
 
 ### connent
-![](https://raw.githubusercontent.com/FrominXu/postmessagejs/master/images/postmessagejs-connect.png)
+![](https://github.com/FrominXu/postmessagejs/blob/main/images/postmessagejs-connect.png?raw=true)
 
 ### message-channel
-![](https://raw.githubusercontent.com/FrominXu/postmessagejs/master/images/postmessagejs-message-channel.png)
+![](https://github.com/FrominXu/postmessagejs/blob/main/images/postmessagejs-message-channel.png?raw=true)
 
 ## How to use it
 ```shell
