@@ -8,4 +8,5 @@ node_modules/
 examples/
 src/
 test/
+images/
 .vscode/
