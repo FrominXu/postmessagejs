@@ -11,11 +11,11 @@ postmessage-promise is a client-server like, WebSocket like, full Promise syntax
 ## Features
 * support window: iFrame and window.open() window.
 * client-server like, and WebSocket like.
-* client use `callServer` to connect with server unless timeout. You can use the same `serverObject` to create more client-caller if necessary. (the server may be a frame.contentWindow、a new opened window、window.parent or window.opener)
+* client use `callServer` to connect with server unless timeout. You can use the same `serverObject` to create more server-caller if necessary. (the server may be a frame.contentWindow、a new opened window、window.parent or window.opener)
 * server use `startListening` to start a server listening, each server listening can only connect with one client. You can start more than one listening if necessary.
 * ES6 async await syntax supported.
 
-### connent
+### connect
 ![](https://github.com/FrominXu/postmessagejs/blob/main/images/postmessagejs-connect.png?raw=true)
 
 ### message-channel
@@ -115,7 +115,7 @@ startListening(options).then(e => {
 });
 ```
 
-### multi server and client
+### multiple server and client
 ```js
 // server:
 const listener = (handler, name)=>{
@@ -128,7 +128,7 @@ const listener = (handler, name)=>{
     handler(e);
   });
 }
-listener((e)=>{});
+listener((e)=>{}, 'name1');
 //
 // client:
 callServer(serverObject, {
