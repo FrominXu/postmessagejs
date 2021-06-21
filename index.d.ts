@@ -7,8 +7,8 @@ interface IframeServerObject extends ServerObject {
 }
 declare namespace utils {
   function resolveOrigin(url: string): string;
-  function getIframeServer (iframeRoot: HTMLElement, url: string, name: string, styleList?: string[]):IframeServerObject;
-  function getOpenedServer (url: string): ServerObject;
+  function getIframeServer(iframeRoot: HTMLElement, url: string, name: string, styleList?: string[]): IframeServerObject;
+  function getOpenedServer(url: string): ServerObject;
 }
 interface Options {
   timeout?: number;
@@ -23,7 +23,7 @@ interface ClientOptions extends Options {
 }
 type PostMessagePayload = any;
 type PostMessageResponse = any;
-type PostMessageListener = (method: string, payload: PostMessagePayload, response: (response: PostMessageResponse)=> void) => void;
+type PostMessageListener = (method: string, payload: PostMessagePayload, response: (response: PostMessageResponse) => void) => void;
 interface ConnectCallback {
   postMessage: (method: string, payload: PostMessagePayload) => Promise<PostMessageResponse>;
   listenMessage: (listener: PostMessageListener) => void;
