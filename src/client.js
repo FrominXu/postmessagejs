@@ -48,7 +48,7 @@ function connectServer(sourceInfo, clientProxy, timeout, clientInfo) {
  * @param {*} clientInfo
  */
 function createChannel(serverProps, clientProxy, timeout) {
-  const { server, serverInfo = {} } = serverProps;
+  const { server, serverInfo = {}, channelId } = serverProps;
   let messageChannel = new MessageChannel('client', clientProxy, timeout);
   const destroy = () => {
     if (messageChannel) {
@@ -70,6 +70,7 @@ function createChannel(serverProps, clientProxy, timeout) {
   return {
     run: resolve => {
       resolve({
+        channelId,
         serverInfo,
         postMessage: (...args) => {
           if (messageChannel) {

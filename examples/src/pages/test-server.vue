@@ -28,7 +28,7 @@ export default {
     // 3 seconds delay when server ready
     setTimeout(() => {
       startListening().then(e => {
-        console.log("connected with client");
+        console.log("connected with client", e);
         this.connected = true;
         const { postMessage, listenMessage, destroy } = e;
         this.postMessage = postMessage;

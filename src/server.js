@@ -3,8 +3,10 @@ import MessageProxy from './message-proxy';
 
 const CLIENT_KEY = 'postmessage-promise_client';
 const IDENTITY_KEY = 'identity_key';
+// const TCP_TIMEOUT_INIT = 1000; // RFC6298 2.1 initial RTO value
 function connectClient(eventFilter, serverInfo) {
   return new Promise(resolve => {
+    // let connectType = 'syn'; // ack
     function handShake(event) {
       if (!event.data
         || event.data[IDENTITY_KEY] !== CLIENT_KEY
@@ -60,6 +62,7 @@ function createChannel(clientProps, eventFilter, timeout) {
     run: resolve => {
       serverProxy.request('hand-shake', 'hand-shake-event', { serverInfo });
       resolve({
+        channelId,
         clientInfo,
         postMessage: (...args) => {
           if (messageChannel) {

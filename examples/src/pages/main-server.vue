@@ -35,7 +35,7 @@ export default {
     const handler = (e) => {
       this.connected = true;
         const { postMessage, listenMessage, destroy, clientInfo } = e;
-        console.log("connected with client:", clientInfo.name);
+        console.log("connected with client:", clientInfo.name, e);
         this.postMessage = postMessage;
         listenMessage((method, payload, response) => {
           console.log("server listening: ", method, payload);

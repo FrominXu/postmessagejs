@@ -36,7 +36,7 @@ export default {
       }).then(e => {
         this.connected = true;
         const { postMessage, listenMessage, destroy, serverInfo } = e;
-        console.log("connected with server:", serverInfo.name);
+        console.log("connected with server:", serverInfo.name, e);
         this.postMessage = postMessage;
         this.destroy = destroy;
         listenMessage((method, payload, response) => {

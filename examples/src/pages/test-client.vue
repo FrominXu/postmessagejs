@@ -33,7 +33,7 @@ export default {
     openServer: function() {
       const serverObject = getOpenedServer("/newPage");
       callServer(serverObject).then(e => {
-        console.log("connected with server");
+        console.log("connected with server", e);
         this.connected = true;
         const { postMessage, listenMessage, destroy } = e;
         this.postMessage = postMessage;
