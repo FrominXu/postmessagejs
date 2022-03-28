@@ -36,6 +36,16 @@ function connectClient(eventFilter, serverInfo) {
         // client synchronous
         waitingType = 'ack';
         const fn = () => {
+          if (!event.source || event.source.closed) {
+            console.info('client closed and reset to listening.');
+            waitingType = 'syn';
+            clearTimeout(timer);
+            timer = null;
+            retries = TCP_SYNACK_RETRIES;
+            seqnumber = Number(Math.random().toString().substr(3, 10));
+            cSeqnumber = -1;
+            return;
+          }
           event.source.postMessage({
             [IDENTITY_KEY]: 'postmessage-promise_server',
             channelId: event.data.channelId,
@@ -56,13 +66,14 @@ function connectClient(eventFilter, serverInfo) {
             retries = retries - 1;
             // waitingType = 'syn';
             if (waitingType === 'ack') {
+              timer = setTimeout(retryFn, TCP_TIMEOUT_INIT);
               fn();
             }
-            timer = setTimeout(retryFn, TCP_TIMEOUT_INIT);
           } else {
             // reset to a new listening
             console.info('server three-way hand shake timeout and reset to listening.');
             waitingType = 'syn';
+            clearTimeout(timer);
             timer = null;
             retries = TCP_SYNACK_RETRIES;
             seqnumber = Number(Math.random().toString().substr(3, 10));
