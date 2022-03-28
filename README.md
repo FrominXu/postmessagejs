@@ -9,8 +9,9 @@ postmessage-promise is a client-server like, WebSocket like, full Promise syntax
 * Sometimes, we need waiting for the postMessage's response before post next message.
 
 ## Features
-* support window: iFrame and window.open() window.
+* support window: frame.contentWindow / openedWindow / window.parent / window.opener
 * client-server like, and WebSocket like.
+* 3-way hand shake at connecting.
 * client use `callServer` to connect with server unless timeout. You can use the same `serverObject` to create more server-caller if necessary. (the server may be a frame.contentWindow、a new opened window、window.parent or window.opener)
 * server use `startListening` to start a server listening, each server listening can only connect with one client. You can start more than one listening if necessary.
 * ES6 async await syntax supported.

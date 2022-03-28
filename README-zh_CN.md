@@ -7,8 +7,9 @@ postmessage-promise 是一个类 client-server 模式、类 WebSocket 模式、�
 * 有时候，我们需要等待消息的响应后才能发送下一个消息
 
 ## 特性
-* 支持 iframe 和 window.open 打开的窗口
+* 支持的 window：frame.contentWindow / openedWindow / window.parent / window.opener
 * 类 client-server 模式、类 WebSocket 模式
+* 三次握手的连接建立实现
 * client 端使用 `callServer` 方法尝试连接 server 直到超时。如果需要，你可以用同一个 `serverObject` 来创建新的 server-caller。 server 可以是 一个 frame.contentWindow、一个新打开的 window、window.parent 或者 window.opener)
 * server 端使用 `startListening` 方法开启一个监听，一个监听只能与一个 client 建立连接。如果需要，你也可以开启多个监听。
 * ES6 async await 语法支持
