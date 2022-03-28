@@ -44,30 +44,38 @@ function connectClient(eventFilter, serverInfo) {
             retries = TCP_SYNACK_RETRIES;
             seqnumber = Number(Math.random().toString().substr(3, 10));
             cSeqnumber = -1;
-            return;
+            return false;
           }
-          event.source.postMessage({
-            [IDENTITY_KEY]: 'postmessage-promise_server',
-            channelId: event.data.channelId,
-            method: 'hand-shake',
-            payload: {
-              serverInfo,
-              acknumber: cSeq + 1,
-              SYN,
-              ACK,
-              seqnumber
-            }
-          }, event.origin);
+          try {
+            event.source.postMessage({
+              [IDENTITY_KEY]: 'postmessage-promise_server',
+              channelId: event.data.channelId,
+              method: 'hand-shake',
+              payload: {
+                serverInfo,
+                acknumber: cSeq + 1,
+                SYN,
+                ACK,
+                seqnumber
+              }
+            }, event.origin);
+          } catch (e) {
+            console.error(e);
+            return true;
+          }
+          return true;
         };
-        fn();
+        const tryAck = fn();
+        if (!tryAck) return;
         const retryFn = () => {
           if (retries > 0) {
-            // eslint-disable-next-line operator-assignment
-            retries = retries - 1;
             // waitingType = 'syn';
             if (waitingType === 'ack') {
-              timer = setTimeout(retryFn, TCP_TIMEOUT_INIT);
-              fn();
+              // eslint-disable-next-line operator-assignment
+              retries = retries - 1;
+              if (fn()) {
+                timer = setTimeout(retryFn, TCP_TIMEOUT_INIT);
+              }
             }
           } else {
             // reset to a new listening
