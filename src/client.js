@@ -4,20 +4,34 @@ import MessageProxy from './message-proxy';
 function connectServer(sourceInfo, clientProxy, timeout, clientInfo) {
   return new Promise((resolve, reject) => {
     const { source: server, origin, channelId } = sourceInfo;
+    const SYN = 1;
+    const ACK = 0;
+    const seqnumber = Number(Math.random().toString().substr(3, 10));
     let timer = null;
     const startTime = new Date();
     let unListen = null;
     function handShake(method, eventId, payload = {}) {
       if (method === 'hand-shake') {
-        clearInterval(timer);
-        if (unListen) { unListen(); }
-        resolve({
-          server,
-          origin,
-          channelId,
-          serverInfo: payload.serverInfo,
-          clientInfo
-        });
+        // 判断状态
+        const {
+          SYN: sSYN, ACK: sACK, seqnumber: sSeq, acknumber
+        } = payload || {};
+        // console.log('client hand shake', payload);
+        if (sSYN === 1 && sACK === 1 && acknumber === seqnumber + 1) {
+          // this is server acknowledgement
+          clearInterval(timer);
+          if (unListen) { unListen(); }
+          clientProxy.request('hand-shake', 'hand-shake-event', {
+            clientInfo, ACK: 1, seqnumber: seqnumber + 1, acknumber: sSeq + 1,
+          });
+          resolve({
+            server,
+            origin,
+            channelId,
+            serverInfo: payload.serverInfo,
+            clientInfo
+          });
+        }
       }
     }
     unListen = clientProxy.listen(handShake);
@@ -38,7 +52,9 @@ function connectServer(sourceInfo, clientProxy, timeout, clientInfo) {
           throw new Error('connect timeout.');
         }
       }
-      clientProxy.request('hand-shake', 'hand-shake-event', { clientInfo });
+      clientProxy.request('hand-shake', 'hand-shake-event', {
+        clientInfo, SYN, ACK, seqnumber
+      });
     };
     timer = setInterval(tryConnect, 100);
   });
