@@ -181,7 +181,7 @@ function startListening(options = {}) {
         ...cProps,
         destroy: () => {
           if (onDestroy) {
-            onDestroy(cProps.clientInfo);
+            onDestroy(cProps.clientInfo, cProps);
           }
         }
       };

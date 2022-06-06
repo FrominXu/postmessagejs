@@ -132,7 +132,7 @@ function callServer(serverObject, options = {}) {
         destroy: () => {
           clientProxy = null;
           if (onDestroy) {
-            onDestroy();
+            onDestroy(sProps.serverInfo, sProps);
           }
         }
       };
