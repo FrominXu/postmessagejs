@@ -19,7 +19,8 @@ class MessageProxy {
   listen = fn => {
     const _this = this;
     const listener = function listener(event) {
-      if (event.origin !== _this.origin
+      if (
+        (_this.origin !== '*' && event.origin !== _this.origin)
         || event.source !== _this.source
         || !event.data
         || event.data[IDENTITY_KEY] !== identityMap[_this.type].accept
