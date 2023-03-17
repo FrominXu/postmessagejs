@@ -10,7 +10,7 @@ postmessage-promise is a client-server like, WebSocket like, full Promise syntax
 
 ## Features
 * postMessage().then() syntax & ES6 async/await syntax supported.
-* target window: frame.contentWindow / openedWindow / window.parent / window.opener
+* target window: frame.contentWindow / openedWindow / window.parent / window.opener.
 * client-server like, and WebSocket like.
 * 3-Way Handshake at connecting.
 * client use `callServer` to connect with server unless timeout. You can use the same `serverObject` to create more server-caller if necessary. (the server may be a frame.contentWindow、a new opened window、window.parent or window.opener)
@@ -44,7 +44,7 @@ callServer(serverObject, options).then(e => {
   });
   postMessage("hello", "I am Petter.").then(res => {
     postMessage("...");
-  ));
+  });
 });
 ```
 * server start listening
@@ -58,12 +58,12 @@ startListening(options).then(e => {
   });
   postMessage('hello', "I am Alice.").then(res => {
     postMessage("...");
-  ));
+  });
 });
 ```
 
 ## serverObject
-server is the target window object that you what post message to. And the origin is the target-window's origin, you can set '*' in Cross-origin case.
+server is the target window object that you want post message to. And the origin is the target-window's origin, you can set '*' in Cross-origin case.
 ```js
   {
     server: frame.contentWindow, // openedWindow / window.parent / window.opener

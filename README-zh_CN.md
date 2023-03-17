@@ -11,13 +11,13 @@ postmessage-promise 是一个类 client-server 模式、类 WebSocket 模式、�
 * 支持的 window：frame.contentWindow / openedWindow / window.parent / window.opener
 * 类 client-server 模式、类 WebSocket 模式
 * 三次握手的连接建立实现
-* client 端使用 `callServer` 方法尝试连接 server 直到超时。如果需要，你可以用同一个 `serverObject` 来创建新的 server-caller。 server 可以是 一个 frame.contentWindow、一个新打开的 window、window.parent 或者 window.opener)
+* client 端使用 `callServer` 方法尝试连接 server 直到超时。如果需要，你可以用同一个 `serverObject` 来创建新的 server-caller。 server 可以是 一个 frame.contentWindow、一个新打开的 window、window.parent 或者 window.opener。
 * server 端使用 `startListening` 方法开启一个监听，一个监听只能与一个 client 建立连接。如果需要，你也可以开启多个监听。
 
-### connect
+### 连接流程
 ![](https://github.com/FrominXu/postmessagejs/blob/main/images/postmessagejs-connect.png?raw=true)
 
-### message-channel
+### 信息通道
 ![](https://github.com/FrominXu/postmessagejs/blob/main/images/postmessagejs-message-channel.png?raw=true)
 
 ## 如何使用
@@ -41,7 +41,7 @@ callServer(serverObject, options).then(e => {
   });
   postMessage("hello", "I am Petter.").then(res => {
     postMessage("...");
-  ));
+  });
 });
 ```
 * server 启动监听
@@ -55,7 +55,7 @@ startListening(options).then(e => {
   });
   postMessage('hello', "I am Alice.").then(res => {
     postMessage("...");
-  ));
+  });
 });
 ```
 
