@@ -16,7 +16,7 @@ postmessage-promise is a client-server like, WebSocket like, full Promise syntax
 * server use `startListening` to start a server listening, each server listening can only connect with one client. You can start more than one listening if necessary.
 * ES6 async await syntax supported.
 
-### connect
+### connecting
 ![](https://github.com/FrominXu/postmessagejs/blob/main/images/postmessagejs-connect.png?raw=true)
 
 ### message-channel
@@ -27,6 +27,61 @@ postmessage-promise is a client-server like, WebSocket like, full Promise syntax
 $ npm i postmessage-promise --save
 ```
 
+## start
+* client call to server
+```js
+import { callServer, utils } from "postmessage-promise";
+const serverObject = { 
+  server: frame.contentWindow, // openedWindow / window.parent / window.opener; 
+  origin: "*", // target-window's origin or *
+};
+const options = {}; 
+callServer(serverObject, options).then(e => {
+  const { postMessage, listenMessage, destroy } = e;
+  listenMessage((method, payload, response) => {
+    response("Petter's response.");
+  });
+  postMessage("hello", "I am Petter.").then(res => {
+    postMessage("...");
+  ));
+});
+```
+* server start listening
+```js
+import { startListening } from "postmessage-promise";
+const options = {};
+startListening(options).then(e => {
+  const { postMessage, listenMessage, destroy } = e;
+  listenMessage((method, payload, response) => {
+    response("Alice's response.");
+  });
+  postMessage('hello', "I am Alice.").then(res => {
+    postMessage("...");
+  ));
+});
+```
+
+## serverObject
+server is the target window object that you what post message to. And the origin is the target-window's origin, you can set '*' in Cross-origin case.
+```js
+  {
+    server: frame.contentWindow, // openedWindow / window.parent / window.opener
+    origin
+  };
+```
+
+## options 
+```js
+const options = { 
+  eventFilter: (event) => true, 
+  timeout: 20 * 1000,
+  onDestroy: () => { if (frame) { frame.parentNode.removeChild(frame); } }
+}
+```
+* 'eventFilter' is a filter for post messages event.
+* 'timeout' is set for client to connect with server, or for client and server's response of postMessage.then.
+
+## demo
 ### client (iframe case)
 ```js
 import { callServer, utils } from "postmessage-promise";
@@ -137,22 +192,3 @@ callServer(serverObject, {
 }).then(e => {})
 ```
 
-## serverObject
-you can provide other serverObject like:
-```js
-  {
-    server: frame.contentWindow, // openedWindow / window.parent / window.opener
-    origin
-  };
-```
-
-## options 
-```js
-const options = { 
-  eventFilter: (event) => true, 
-  timeout: 20 * 1000,
-  onDestroy: () => { if (frame) { frame.parentNode.removeChild(frame); } }
-}
-```
-* eventFilter: is filter for post messages event.
-* timeout: is set for client to connect with server, or for client and server's response of postMessage.then.
