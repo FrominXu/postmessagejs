@@ -74,7 +74,9 @@ class MessageChannel {
         resolve: reswrap, reject, eventId
       }, method, payload);
       ctimer = setTimeout(() => {
-        delete this.messageResponse[eventId];
+        if (this.messageResponse) {
+          delete this.messageResponse[eventId];
+        }
         reject(new Error('postMessage timeout'));
       }, this.timeout || (20 * 1000));
     });
