@@ -28,6 +28,14 @@ postmessage-promise is a client-server like, WebSocket like, full Promise syntax
 $ npm i postmessage-promise --save
 ```
 
+## use with script tag
+``` html
+<script type="text/javascript" src="/postmessage-promise.umd.js"></script>
+<script>
+  const { startListening, callServer, utils } = postMessagePromise;
+</script>
+```
+
 ## start
 * client call to server
 ```js

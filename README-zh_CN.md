@@ -24,7 +24,13 @@ postmessage-promise 是一个类 client-server 模式、类 WebSocket 模式、�
 ```shell
 $ npm i postmessage-promise --save
 ```
-
+## 使用 script 标签引入
+``` html
+<script type="text/javascript" src="/postmessage-promise.umd.js"></script>
+<script>
+  const { startListening, callServer, utils } = postMessagePromise;
+</script>
+```
 ## 快速开始
 * client 连接 server
 ```js
