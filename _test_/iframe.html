@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>postmessage-promise</title>
+</head>
+
+<body>
+  <script type="text/javascript" src="/postmessage-promise.umd.js"></script>
+  <div class="client">
+    <p>this is a client</p>
+  </div>
+  <div id="connect">connecting……</div>
+  <div>received:：<span id="msg"></span></div>
+  <div><button id="send">toSend</button></div>
+  <script>
+    const {
+      resolveOrigin
+    } = postMessagePromise.utils;
+    const serverObject = {
+      server: window.parent,
+      origin: resolveOrigin(document.referrer),
+    };
+    postMessagePromise.callServer(serverObject, {
+      onDestroy: () => {},
+      clientInfo: {
+        name: "thisIsClient" + Math.random()
+      }
+    }).then(e => {
+      const {
+        postMessage,
+        listenMessage,
+        destroy,
+        serverInfo
+      } = e;
+      document.getElementById('connect').innerHTML = "connected success";
+      document.getElementById('send').addEventListener('click', function () {
+        postMessage("channel1", "this is from client: " + Math.random()).then(e => {
+          console.log('server response:', e);
+        })
+      });
+      listenMessage((method, payload, response) => {
+        console.log("client listening: ", method, payload);
+        document.getElementById('msg').innerHTML = payload;
+        const time = new Date().getTime();
+        setTimeout(() => {
+          response({
+            time,
+            msg: "this is a client response"
+          });
+        }, 200);
+      });
+    });
+
+  </script>
+</body>
+
+</html>

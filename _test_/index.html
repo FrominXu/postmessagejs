@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>postmessage-promise</title>
+</head>
+
+<body>
+  <script type="text/javascript" src="/postmessage-promise.umd.js"></script>
+  <div class="server">
+    <p>this is a server</p>
+    <div id="connect">connecting……</div>
+    <div>received:：<span id="msg"></span></div>
+    <div><button id="send">toSend</button></div>
+  </div>
+  <iframe style="width: 80%" src="/iframe.html"></iframe>
+  <script>
+    setTimeout(
+      function () {
+        console.log("start listen");
+        postMessagePromise.startListening({
+          serverInfo: {
+            name: "thisIsServer" + Math.random()
+          }
+        }).then(e => {
+          document.getElementById('connect').innerHTML = "connected success";
+          const {
+            postMessage,
+            listenMessage,
+            destroy
+          } = e;
+          document.getElementById('send').addEventListener('click', function () {
+            postMessage("channel1", "this is from server: " + Math.random());
+          });
+          listenMessage((method, payload, response) => {
+            console.log("server listening: ", method, payload);
+            document.getElementById('msg').innerHTML = payload;
+            const time = new Date().getTime();
+            setTimeout(() => {
+              response({
+                time,
+                msg: "this is a server response"
+              });
+            }, 200);
+          });
+        });
+      }, 3000);
+
+  </script>
+</body>
+
+</html>
