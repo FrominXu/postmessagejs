@@ -26,7 +26,7 @@ $ npm i postmessage-promise --save
 ```
 ## 使用 script 标签引入
 ``` html
-<script type="text/javascript" src="/postmessage-promise.umd.js"></script>
+<script type="text/javascript" src="https://unpkg.com/postmessage-promise@3.2.0/build/postmessage-promise.umd.js"></script>
 <script>
   const { startListening, callServer, utils } = postMessagePromise;
 </script>
